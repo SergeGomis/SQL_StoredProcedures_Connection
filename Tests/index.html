@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <title>USERS DATA</title>
+    </head>
+    <body>
+
+        <div class="container">
+
+            <div class="form-inline mt-4">
+                <div class="form-group m-2">
+                    <label for="userId" class="sr-only">User ID</label>
+                    <input class="form-control" id="userId" placeholder="User ID">
+                </div>
+                <button id="actionBtn" class="btn btn-primary m-2">Execute</button>
+            </div>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Modified Date</th>
+                        <th scope="col">First Name</th>
+                        <th scope="col">Last Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Phone Number</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+        <script>
+
+            function callBackendForUsers(userId) {
+
+                const currecntTRs = document.getElementsByClassName("x-tr");
+                for (var i = currecntTRs.length - 1; i >= 0; --i) {
+                    currecntTRs[i].remove();
+                }
+
+                const getUsersUrl = `http://localhost:8080/users?userId=${userId}`;
+                const headers = new Headers();
+                headers.append('Accept', 'application/json');
+
+                fetch(getUsersUrl, {headers})
+                        .then(res => res.json())
+                        .then(users => {
+                            users.forEach(user => {
+                                const tr = document.createElement('tr'); //Create a new row
+                                tr.setAttribute("class", "x-tr");
+
+                                const tbody = document.getElementById("tbody");
+                                tbody.appendChild(tr);
+
+                                Object.keys(user).forEach(userProperty => {
+                                    var td = tr.insertCell();
+                                    td.innerText = user[userProperty];
+                                });
+                            });
+                        }).catch(err => console.error(err));
+            }
+
+            document.addEventListener("DOMContentLoaded", () => {
+            //setInterval(populate.bind(null,''), 10000);
+                setInterval(() => callBackendForUsers(''), 10000);
+
+                document.getElementById("actionBtn")
+                        .addEventListener("click", () => {
+                            const userId = document.getElementById("userId");
+                            callBackendForUsers(userId.value);
+                            userId.value = '';
+                        });
+            });
+
+        </script>
+    </body>
+</html>
